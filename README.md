@@ -381,85 +381,85 @@ And all 33 grouped gVCFs were then used as input for joint genotyping. To save t
 GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The SNP VQSR model was trained using HapMap3.3 and 1KG Omni 2.5 SNP sites and a 99.5% sensitivity threshold was applied to filter variants, while Mills et. al. 1KG gold standard and Axiom Exome Plus sites were used for insertions/deletion sites and a 95.0% sensitivity threshold was used.
 
 >- Program(s)
->  - `VariantRecalibrator (gatk 3.7.0)`
->  - `ApplyRecalibration (gatk 3.7.0)`
+>   - `VariantRecalibrator (gatk 3.7.0)`
+>   - `ApplyRecalibration (gatk 3.7.0)`
 >- Input(s)
->  - Exome calling interval (bed): \$exome_calling_region
->  - Human GRCh37 reference (fasta): \$reference
->  - Raw VCF file: \$prefix.raw.vcf
->  - Gold standard genotyped snp in HapMap V3.3: \$hapmap
->  - Gold standard genotyped snp in 1000G (omni 2.5): \$omini
->  - High quality genotyped snp in 1000G (phase1): \$phase1
->  - Recorded snp in dbSNP138: \$dbsnp
->  - Mills and 1000G gold standard indels: \$mills
->  - Raw VCF (combind VCF of all high-quality BAMs): \$prefix.raw.vcf
+>   - Exome calling interval (bed): \$exome_calling_region
+>   - Human GRCh37 reference (fasta): \$reference
+>   - Raw VCF file: \$prefix.raw.vcf
+>   - Gold standard genotyped snp in HapMap V3.3: \$hapmap
+>   - Gold standard genotyped snp in 1000G (omni 2.5): \$omini
+>   - High quality genotyped snp in 1000G (phase1): \$phase1
+>   - Recorded snp in dbSNP138: \$dbsnp
+>   - Mills and 1000G gold standard indels: \$mills
+>   - Raw VCF (combind VCF of all high-quality BAMs): \$prefix.raw.vcf
 >
 >
 >- Output(s)
 >
->  - $prefix.snps.VQSR.vcf
->  - $prefix.VQSR.vcf
+>   - $prefix.snps.VQSR.vcf
+>   - $prefix.VQSR.vcf
 >
 >- Command(s)
 >
->  - ```shell
->    gatk -T VariantRecalibrator \
->    --disable_auto_index_creation_and_locking_when_reading_rods \
->    -R $reference -input $prefix.raw.vcf \
->    -resource:hapmap,known=false,training=true,truth=true,prior=15.0 $hapmap \
->    -resource:omini,known=false,training=true,truth=false,prior=12.0 $omini \
->    -resource:1000G,known=false,training=true,truth=false,prior=10.0 $phase1 \
->    -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 $dbsnp \
->    -an QD -an MQ -an MQRankSum -an ReadPosRankSum \
->    -an FS -an SOR -an DP -an InbreedingCoeff \
->    -mode SNP --maxGaussians 6 \
->    -tranche 100.0 -tranche 99.95 -tranche 99.9 -tranche 99.8 \
->    -tranche 99.6 -tranche 99.5 -tranche 99.4 -tranche 99.3 \
->    -tranche 99.0 -tranche 98.0 -tranche 97.0 -tranche 90.0 \
->    -recalFile $prefix.snps.recal \
->    -tranchesFile $prefix.snps.tranches \
->    -rscriptFile $prefix.snps.plots.R
->    ```
+>   - ```shell
+>     gatk -T VariantRecalibrator \
+>     --disable_auto_index_creation_and_locking_when_reading_rods \
+>     -R $reference -input $prefix.raw.vcf \
+>     -resource:hapmap,known=false,training=true,truth=true,prior=15.0 $hapmap \
+>     -resource:omini,known=false,training=true,truth=false,prior=12.0 $omini \
+>     -resource:1000G,known=false,training=true,truth=false,prior=10.0 $phase1 \
+>     -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 $dbsnp \
+>     -an QD -an MQ -an MQRankSum -an ReadPosRankSum \
+>     -an FS -an SOR -an DP -an InbreedingCoeff \
+>     -mode SNP --maxGaussians 6 \
+>     -tranche 100.0 -tranche 99.95 -tranche 99.9 -tranche 99.8 \
+>     -tranche 99.6 -tranche 99.5 -tranche 99.4 -tranche 99.3 \
+>     -tranche 99.0 -tranche 98.0 -tranche 97.0 -tranche 90.0 \
+>     -recalFile $prefix.snps.recal \
+>     -tranchesFile $prefix.snps.tranches \
+>     -rscriptFile $prefix.snps.plots.R
+>     ```
 >
->  - ```shell
->    gatk -T ApplyRecalibration \
->    -R $reference \
->    -L $exome_calling_region \
->    --ts_filter_level 99.5 \
->    -recalFile $prefix.snps.recal \
->    -tranchesFile $prefix.snps.tranches \
->    -mode SNP \
->    -input $prefix.raw.vcf \
->    -o $prefix.snps.VQSR.vcf
->    ```
+>   - ```shell
+>     gatk -T ApplyRecalibration \
+>     -R $reference \
+>     -L $exome_calling_region \
+>     --ts_filter_level 99.5 \
+>     -recalFile $prefix.snps.recal \
+>     -tranchesFile $prefix.snps.tranches \
+>     -mode SNP \
+>     -input $prefix.raw.vcf \
+>     -o $prefix.snps.VQSR.vcf
+>     ```
 >
->  - ```shell
->    gatk -T VariantRecalibrator \
->    -R $reference -input $prefix.snps.VQSR.vcf \
->    -resource:mills,known=true,training=true,truth=true,prior=12.0 $mills \
->    -an QD -an MQ -an MQRankSum -an ReadPosRankSum \
->    -an FS -an SOR -an DP -an InbreedingCoeff \
->    -mode INDEL --maxGaussians 6 \
->    -tranche 100.0 -tranche 99.95 -tranche 99.9 -tranche 99.5 \
->    -tranche 99.0 -tranche 97.0 -tranche 96.0 -tranche 95.0 \
->    -tranche 94.0 -tranche 93.5 -tranche 93.0 -tranche 92.0 \
->    -tranche 91.0 -tranche 90.0 \
->    -recalFile $prefix.snps.indels.recal \
->    -tranchesFile $prefix.snps.indels.tranches \
->    -rscriptFile $prefix.snps.indels.plots.R
->    ```
+>   - ```shell
+>     gatk -T VariantRecalibrator \
+>     -R $reference -input $prefix.snps.VQSR.vcf \
+>     -resource:mills,known=true,training=true,truth=true,prior=12.0 $mills \
+>     -an QD -an MQ -an MQRankSum -an ReadPosRankSum \
+>     -an FS -an SOR -an DP -an InbreedingCoeff \
+>     -mode INDEL --maxGaussians 6 \
+>     -tranche 100.0 -tranche 99.95 -tranche 99.9 -tranche 99.5 \
+>     -tranche 99.0 -tranche 97.0 -tranche 96.0 -tranche 95.0 \
+>     -tranche 94.0 -tranche 93.5 -tranche 93.0 -tranche 92.0 \
+>     -tranche 91.0 -tranche 90.0 \
+>     -recalFile $prefix.snps.indels.recal \
+>     -tranchesFile $prefix.snps.indels.tranches \
+>     -rscriptFile $prefix.snps.indels.plots.R
+>     ```
 >
->  - ```shell
->    gatk -T ApplyRecalibration \
->    -R $reference \
->    -L $exome_calling_region \
->    --ts_filter_level 95.0 \
->    -recalFile $prefix.snps.indels.recal \
->    -tranchesFile $prefix.snps.indels.tranches \
->    -mode INDEL \
->    -input $prefix.snps.VQSR.vcf \
->    -o $prefix.VQSR.vcf
->    ```
+>   - ```shell
+>     gatk -T ApplyRecalibration \
+>     -R $reference \
+>     -L $exome_calling_region \
+>     --ts_filter_level 95.0 \
+>     -recalFile $prefix.snps.indels.recal \
+>     -tranchesFile $prefix.snps.indels.tranches \
+>     -mode INDEL \
+>     -input $prefix.snps.VQSR.vcf \
+>     -o $prefix.VQSR.vcf
+>     ```
 
 
 
