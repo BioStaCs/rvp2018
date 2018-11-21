@@ -46,8 +46,6 @@ The sources of high quality bams
 
 
 
----
-
 
 
 ## 2 Data Generation
@@ -380,8 +378,6 @@ And all 33 grouped gVCFs were then used as input for joint genotyping. To save t
 #### 2.2.3 Variant recalibration
 
 
-
----
 
 
 
