@@ -132,28 +132,28 @@ PCR duplicate reads were then marked for each BAM using `Picard MarkDuplicates`.
 
 >- Program(s)
 >
->  - `MarkDuplicates(Picard 2.10.2)`
->  - `samtools 1.7`
+>   - `MarkDuplicates(Picard 2.10.2)`
+>   - `samtools 1.7`
 >
 >- Input(s)
 >
->  - Sorted BAM file: \$bam_sort
+>   - Sorted BAM file: \$bam_sort
 >
 >- Output(s)
 >
->  - Markdup metrics file: \$markdup_metrics
->  - BAM file with duplicates marked: $bam_markdup
->  - BAM index file: ${bam_markdup}.bai
+>   - Markdup metrics file: \$markdup_metrics
+>   - BAM file with duplicates marked: $bam_markdup
+>   - BAM index file: ${bam_markdup}.bai
 >
 >- Command(s)
 >
->  - ```shell
->    picard MarkDuplicates VALIDATION_STRINGENCY=LENIENT \
->    INPUT=$bam_sort OUTPUT=$bam_markdup M=$markdup_metrics
->    ```
->  - ```shell
->    samtools index $bam_markdup
->    ```
+>   - ```shell
+>     picard MarkDuplicates VALIDATION_STRINGENCY=LENIENT \
+>     INPUT=$bam_sort OUTPUT=$bam_markdup M=$markdup_metrics
+>     ```
+>   - ```shell
+>     samtools index $bam_markdup
+>     ```
 
 
 
@@ -299,26 +299,26 @@ The `Genome Analysis Toolkit (GATK) v3.7.0` HaplotypeCaller algorithm was used t
 
 >- Program(s)
 >
->  - `HaplotypeCaller (gatk 3.7.0)`
+>   - `HaplotypeCaller (gatk 3.7.0)`
 >
 >- Input(s)
 >
->  - Exome calling interval (bed): \$exome_calling_region
->  - Human GRCh37 reference (fasta): \$reference
->  - known variants in dbSNP 138 (vcf): \$known_variant
->  - Re-calibrated BAM file: \$bam_bqsr
+>   - Exome calling interval (bed): \$exome_calling_region
+>   - Human GRCh37 reference (fasta): \$reference
+>   - known variants in dbSNP 138 (vcf): \$known_variant
+>   - Re-calibrated BAM file: \$bam_bqsr
 >
 >- Output(s)
 >
->  - gVCF file from each bam: $gvcf_single
+>   - gVCF file from each bam: $gvcf_single
 >
 >- Command(s)
 >
->  - ```shell
->    gatk -T HaplotypeCaller --emitRefConfidence GVCF \
->    -R $reference -L $exome_calling_region --dbsnp $known_variant \
->    -I $bam_bqsr -o $gvcf_single
->    ```
+>   - ```shell
+>     gatk -T HaplotypeCaller --emitRefConfidence GVCF \
+>     -R $reference -L $exome_calling_region --dbsnp $known_variant \
+>     -I $bam_bqsr -o $gvcf_single
+>     ```
 
 
 
