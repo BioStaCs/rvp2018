@@ -9,6 +9,8 @@ Companion repo for RVP paper, 2018
 
 The samples for RVP database were collected from multiple projects including our own in-house projects. In total, WES data from **740** male and **519** female with well-documented reproductive history and raw sequencing data (bam/fastq) were collected.
 
+
+
 ### 1.2 Samples quality control
 
 Samples fullfilled with at least one following QC metrics were excluded from variant calling. Finally, 1109 samples passed QC named high quality bams and used for variant calling.
@@ -22,6 +24,8 @@ Samples fullfilled with at least one following QC metrics were excluded from var
 | CONTAMINATION |    4    |
 |   LOW DEPTH   |   51    |
 | LOW CONVERAGE |   95    |
+
+
 
 ### 1.3 Consortium of samples in RVP 
 
@@ -39,6 +43,10 @@ The sources of high quality bams
 > - `SSC` Simons Simplex Collection. (https://www.sfari.org/resource/simons-simplex-collection/)
 > - `PPMI` Parkinson’s Progression Markers Initiative. (https://www.ppmi-info.org/)
 > - `In house` The Pakistan and Chinese samples collection were supported by the National Key Research and Developmental Program of China and the National Natural Science Foundation of China. 
+
+
+
+---
 
 
 
@@ -189,7 +197,8 @@ The re-alignment intervals for each BAM was determined using `GATK RealignerTarg
 
 > - Program(s)
 >
->   - `GATK 3.7.0`
+>   - `RealignerTargetCreator (GATK 3.7.0)`
+>   - `IndelRealigner (GATK 3.7.0)`
 >
 > - Input(s)
 >
@@ -224,7 +233,8 @@ The base quality scores were then recalibrated using `GATK BaseRecalibrator` and
 
 > - Program(s)
 >
->   - `GATK 3.7.0`
+>   - `BaseRecalibrator (GATK 3.7.0)`
+>   - `PrintReads (GATK 3.7.0)`
 >
 > - Input(s)
 >
@@ -255,7 +265,123 @@ The base quality scores were then recalibrated using `GATK BaseRecalibrator` and
 
 #### 2.1.6 Contamination Detection
 
+The sample contimination wes estimated by `VerifyBamID 1.1.3`. Samples with FREEMIX > 0.075 were excluded from variant calling.
 
+> - Program(s)
+>
+>   - `VerifyBamID 1.1.3`
+>
+> - Input(s)
+>
+>   - Common snps from 1000 genomes(phase3_v4_20130502): $common_snp
+>   - Re-calibrated BAM file: \$bam_bqsr
+>   - Re-calibrated BAM index file: \$bam_bqsr_bai
+>
+> - Output(s)
+>
+>   - Contamination estimation results: \$prefix
+>
+> - Command(s)
+>
+>   - ```shell
+>     verifyBamID --vcf $common_snp --bam $bam_bqsr --bai $bam_bqsr_bai -o $prefix
+>     ```
+
+
+
+
+
+### 2.2 Variant Calling and Recalibration
+
+
+
+#### 2.2.1 Single sample variant calling
+
+The `Genome Analysis Toolkit (GATK) v3.7.0` HaplotypeCaller algorithm was used to generate gVCFs for all 1109 BAMs across the [exome interval set defined by ExAC project](ftp://ftp.broadinstitute.org/pub/ExAC_release/current/resources/exome_calling_regions.v1.interval_list) totaling 59,684,884 bp and known sites were annotated with dbSNP138.
+
+>- Program(s)
+>
+>  - `HaplotypeCaller (gatk 3.7.0)`
+>
+>- Input(s)
+>
+>  - Exome calling interval (bed): \$exome_calling_region
+>  - Human GRCh37 reference (fasta): \$reference
+>  - known variants in dbSNP 138 (vcf): \$known_variant
+>  - Re-calibrated BAM file: \$bam_bqsr
+>
+>- Output(s)
+>
+>  - gVCF file from each bam: $gvcf_single
+>
+>- Command(s)
+>
+>  - ```shell
+>    gatk -T HaplotypeCaller --emitRefConfidence GVCF \
+>    -R $reference -L $exome_calling_region --dbsnp $known_variant \
+>    -I $bam_bqsr -o $gvcf_single
+>    ```
+
+
+
+#### 2.2.2 Joint genotyping
+
+The sample gVCFs were combined into 33 groups with $\sqrt{samples}$ samples in each group.
+
+And all 33 grouped gVCFs were then used as input for joint genotyping. To save the running time, we performed the genotyping on each chromosome separately.
+
+> - Program(s)
+>
+>   - `CombineGVCFs(gatk 3.7.0)`
+>   - `GenotypeGVCFs(gatk 3.7.0)`
+>   - `GatherVcfs (Picard 2.10.2)`
+>
+> - Input(s)
+>
+>   - Human GRCh37 reference (fasta): \$reference
+>   - known variants in dbSNP 138 (vcf): \$known_variant
+>   - Re-calibrated BAM file: \$bam_bqsr
+>
+>
+>   - gVCF file from each bam: $gvcf_single
+>
+> - Output(s)
+>
+>   - Grouped gVCF file: \$gvcf_group
+>
+> - Command(s)
+>
+>   - ```shell
+>     gatk -T CombineGVCFs -R $reference -o $gvcf_group \
+>     --variant $gvcf_single1
+>     --variant $gvcf_single2
+>     ...
+>     ```
+>
+>   - ```shell
+>     gatk -T GenotypeGVCFs -R $reference -D $known_variant -L $chr \
+>     -o $prefix.$chr.raw.vcf
+>     --variant $gvcf_group1
+>     --variant $gvcf_group2
+>     ...
+>     ```
+>
+>   - ```shell
+>     picard GatherVcfs O=$prefix.raw.vcf \
+>     I=$prefix.chr1.raw.vcf \
+>     I=$prefix.chr2.raw.vcf \
+>     ...
+>     ```
+
+
+
+
+
+#### 2.2.3 Variant recalibration
+
+
+
+---
 
 
 
@@ -263,14 +389,14 @@ The base quality scores were then recalibrated using `GATK BaseRecalibrator` and
 
 
 
-##Data Availability
+## 4 Data Availability
 
 
 
-## Acknowledgements
+## 5 Acknowledgements
 
 
 
-## References
+## 6 References
 
  
