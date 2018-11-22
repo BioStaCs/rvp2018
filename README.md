@@ -479,34 +479,34 @@ Variant annotation was performed using `Variant Effect Predictor` (VEP) version 
 - Report Pubmed IDs for publications that cite existing variant.
 
 >- Program(s)
->  - ` ensembl-vep 92.5`
->  - `LOFTEE (vep-plugin)`
+>   - ` ensembl-vep 92.5`
+>   - `LOFTEE (vep-plugin)`
 >- Input(s)
->  - The final call set with no filtering: $prefix.VQSR.vcf
+>   - The final call set with no filtering: $prefix.VQSR.vcf
 >
 >
 >- Output(s)
 >
->  - VCF file from VEP+LOFTEE: $prefix.VQSR.vep_loftee.vcf
+>   - VCF file from VEP+LOFTEE: $prefix.VQSR.vep_loftee.vcf
 >
 >- Command(s)
 >
->  - ```shell
->    vep -i $prefix.VQSR.vcf -o $prefix.VQSR.vep_loftee.vcf \
->    --cache --offline --no_stats --assembly GRCh37 --vcf \
->    --dir_cache $vep_home/cache \
->    --dir_plugin $vep_home/Plugins/loftee \
->    --fasta $vep_home/homo_sapiens/92_GRCh37Homo_sapiens.GRCh37.dna.toplevel.fa.gz \
->    --merged \
->    --allele_number \
->    --af --af_1kg --af_esp --af_gnomad --max_af \
->    --sift b --polyphen b --variant_class \
->    --symbol --total_length --numbers --domains --canonical \
->    --regulatory --biotype --gene_phenotype --pubmed \
->    --plugin LoF,\
->    loftee_path:$vep_home/Plugins/loftee,\
->    human_ancestor_fa:$vep_home/Plugins/loftee/human_ancestor/human_ancestor.fa.rz
->    ```
+>   - ```shell
+>     vep -i $prefix.VQSR.vcf -o $prefix.VQSR.vep_loftee.vcf \
+>     --cache --offline --no_stats --assembly GRCh37 --vcf \
+>     --dir_cache $vep_home/cache \
+>     --dir_plugin $vep_home/Plugins/loftee \
+>     --fasta $vep_home/homo_sapiens/92_GRCh37Homo_sapiens.GRCh37.dna.toplevel.fa.gz \
+>     --merged \
+>     --allele_number \
+>     --af --af_1kg --af_esp --af_gnomad --max_af \
+>     --sift b --polyphen b --variant_class \
+>     --symbol --total_length --numbers --domains --canonical \
+>     --regulatory --biotype --gene_phenotype --pubmed \
+>     --plugin LoF,\
+>     loftee_path:$vep_home/Plugins/loftee,\
+>     human_ancestor_fa:$vep_home/Plugins/loftee/human_ancestor/human_ancestor.fa.rz
+>     ```
 
 CADD score is annotated using a python script `04_cadd_annotate_parallel.py`.
 
