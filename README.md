@@ -378,7 +378,7 @@ And all 33 grouped gVCFs were then used as input for joint genotyping. To save t
 
 #### 2.2.3 Variant recalibration
 
-GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The SNP VQSR model was trained using HapMap3.3 and 1KG Omni 2.5 SNP sites and a 99.5% sensitivity threshold was applied to filter variants, while Mills et. al. 1KG gold standard and Axiom Exome Plus sites were used for insertions/deletion sites and a 95.0% sensitivity threshold was used.
+GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The SNP VQSR model was trained using HapMap3.3 and 1KG Omni 2.5 SNP sites and a 99.5% sensitivity threshold was applied to filter variants, while Mills et. al. 1KG gold standard was used for insertions/deletion sites and a 95.0% sensitivity threshold was used.
 
 >- Program(s)
 >   - `VariantRecalibrator (gatk 3.7.0)`
@@ -463,7 +463,54 @@ GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The
 
 
 
+### 2.3 Variant Annotation
 
+Variant annotation was performed using `Variant Effect Predictor` (VEP) version 92 on GRCh37. LoF (loss-of-function) annotation was performed using [`LOFTEE`](https://github.com/konradjk/loftee), a pugin to VEP developed by [MacArthur Lab](http://macarthurlab.org/) to identify LoF variation. VEP is used to determine the following annotations:
+
+- Variant consequence and impact
+- cDNA change and amino acid change
+- Gene symbol, ensembl ID, transcript ID and whether the transcript is canonical 
+- Affected exon and intron numbering
+- Affected position on cDNA, CDS or protein level.
+- Name of overlapping protein domain
+- Allele frequency in 1000 genomes, ESP6500 and genomAD.
+- SIFT and Polyphen score
+- Existing variant co-located with the variant
+- Report Pubmed IDs for publications that cite existing variant.
+
+>- Program(s)
+>  - ` ensembl-vep 92.5`
+>  - `LOFTEE (vep-plugin)`
+>- Input(s)
+>  - The final call set with no filtering: $prefix.VQSR.vcf
+>
+>
+>- Output(s)
+>
+>  - VCF file from VEP+LOFTEE: $prefix.VQSR.vep_loftee.vcf
+>
+>- Command(s)
+>
+>  - ```shell
+>    vep -i $prefix.VQSR.vcf -o $prefix.VQSR.vep_loftee.vcf \
+>    --cache --offline --no_stats --assembly GRCh37 --vcf \
+>    --dir_cache $vep_home/cache \
+>    --dir_plugin $vep_home/Plugins/loftee \
+>    --fasta $vep_home/homo_sapiens/92_GRCh37Homo_sapiens.GRCh37.dna.toplevel.fa.gz \
+>    --merged \
+>    --allele_number \
+>    --af --af_1kg --af_esp --af_gnomad --max_af \
+>    --sift b --polyphen b --variant_class \
+>    --symbol --total_length --numbers --domains --canonical \
+>    --regulatory --biotype --gene_phenotype --pubmed \
+>    --plugin LoF,\
+>    loftee_path:$vep_home/Plugins/loftee,\
+>    human_ancestor_fa:$vep_home/Plugins/loftee/human_ancestor/human_ancestor.fa.rz
+>    ```
+
+CADD score is annotated using a python script `04_cadd_annotate_parallel.py`.
+
+To speed up the annotation step, we divided the variant call set into 10Mbp bundles, and annotated them parallelly. 
 
 
 
@@ -473,7 +520,11 @@ GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The
 
 ## 4 Data Availability
 
-
+| Call set                                                     | Samples | Filters                                  | Alleles   | Annotations | Analysis                        |
+| ------------------------------------------------------------ | ------- | ---------------------------------------- | --------- | ----------- | ------------------------------- |
+| RVP fertile cohort r0.1                                      | 1,109   | None                                     | 1,029,223 | VEP+CADD    |                                 |
+| RVP fertile cohort r0.1 -Variant site filtering              | 1,109   | Adjusted VQSR PASS                       |           | VEP+CADD    | NA12878 sensitivity/specificity |
+| RVP fertile cohort r0.1 -Variant site filtering and Genotype filtering | 1,109   | Adjusted VQSR PASS High quality variants |           | VEP+CADD    | All analysis in paper           |
 
 ## 5 Acknowledgements
 
