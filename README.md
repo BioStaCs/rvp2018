@@ -465,6 +465,10 @@ GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The
 
 ### 2.3 Variant Annotation
 
+
+
+#### 2.3.1 Function annotation
+
 Variant annotation was performed using `Variant Effect Predictor` (VEP) version 92 on GRCh37. LoF (loss-of-function) annotation was performed using [`LOFTEE`](https://github.com/konradjk/loftee), a pugin to VEP developed by [MacArthur Lab](http://macarthurlab.org/) to identify LoF variation. VEP is used to determine the following annotations:
 
 - Variant consequence and impact
@@ -514,17 +518,44 @@ To speed up the annotation step, we divided the variant call set into 10Mbp bund
 
 
 
+#### 2.3.2 Allele frequency calculation
+
+A custom python script `02_recal_maf.py` was used to recalculate the allele frequency between males and females separately in the INFO field of VCF call set. 
+
+| New tag in INFO field | Explanation                 |
+| --------------------- | --------------------------- |
+| AC_M                  | male alt allele counts      |
+| AC_F                  | female alt allele counts    |
+| AN_M                  | male allele number          |
+| AN_F                  | female allele number        |
+| AC_M                  | male alt allele frequency   |
+| AC_F                  | female alt allele frequency |
+
+
+
+### 2.4 Variant Filtering
+
+
+
+#### 2.4.1 Assessment of variant filtering
+
+The VQSLOD score is known to have a bias towards common and well behaved variants, thus the 99.5% sensitivity threshold will lose many singleton SNPs for population variant data sets . We performed a series of exploration for the relationship between Variant Quality Score Log Odds (VQSLOD) and other metrics (i.e. titv ratio, singleton transmission ratio and Mendel inconsistancy)  to determine the best VQSLOD threshold for variant filtering as described in ExAC project.
+
+#### 2.4.2 Data quality evaluation
+
+
+
 ## 3 Protein-truncating variation
 
 
 
 ## 4 Data Availability
 
-| Call set                                                     | Samples | Filters                                  | Alleles   | Annotations | Analysis                        |
-| ------------------------------------------------------------ | ------- | ---------------------------------------- | --------- | ----------- | ------------------------------- |
-| RVP fertile cohort r0.1                                      | 1,109   | None                                     | 1,029,223 | VEP+CADD    |                                 |
-| RVP fertile cohort r0.1 -Variant site filtering              | 1,109   | Adjusted VQSR PASS                       |           | VEP+CADD    | NA12878 sensitivity/specificity |
-| RVP fertile cohort r0.1 -Variant site filtering and Genotype filtering | 1,109   | Adjusted VQSR PASS High quality variants |           | VEP+CADD    | All analysis in paper           |
+| Call set                                                     | Samples | Filters                                  | Alt alleles | Annotations | Analysis                        |
+| ------------------------------------------------------------ | ------- | ---------------------------------------- | :---------- | ----------- | ------------------------------- |
+| RVP fertile cohort r0.1                                      | 1,109   | None                                     | 1,029,223   | VEP+CADD    | AF between males and females    |
+| RVP fertile cohort r0.1 -Variant site filtering              | 1,109   | Adjusted VQSR PASS                       |             | VEP+CADD    | NA12878 sensitivity/specificity |
+| RVP fertile cohort r0.1 -Variant site filtering and Genotype filtering | 1,109   | Adjusted VQSR PASS High quality variants |             | VEP+CADD    | All analysis in paper           |
 
 ## 5 Acknowledgements
 
