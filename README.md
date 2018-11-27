@@ -477,13 +477,13 @@ The adjustment from standard VQSR filtering was assessed using singleton transmi
 
 One additional round of site filtering was performed to filter sites with inbreeding coefiicient (InbreddingCoeff) < -0.2 to remove sites with excess heterozygous individuals and sites with AC (allele count) = 0, which occurs when remaining genotype calls in the release subset does not meet minimum quality threshold of DP >= 10 and GQ >= 20. In contrast, the Indel PASS cut off was not adjusted.
 
-![01_metrics_vs_vqsrank](D:\jarning\ongoing_project\rvp2018\figures\data_generation\01_metrics_vs_vqsrank.png)
+![01_metrics_vs_vqsrank](./figures/data_generation/01_metrics_vs_vqsrank.png)
 
 #### 2.3.2 Data quality evaluation
 
 The NA12878 exome call set by our pipeline generated from NIST NA12878 WES data on illumina HiSeq platform was evaluated against the NIST v2.18 consensus call set. The  NA12878 exome have 50% ExAC exome v1 intervals with depth >= 20, which is lower than most of our data (black points). In total, there were 255 variants (209 SNPs) that were absent in NIST v2.18. The false discovery rate (FDR) for NA12878 was imporoved from 2.34% to 1.12% after adjusted VQSR and genotype filter. Meanwhile, the sensitivity decreased from 81.35% to 64.87%, which cased by the low depth of raw reads.
 
-![04_NA12878_eval](figures\data_generation\04_NA12878_eval.png)
+![04_NA12878_eval](figures/data_generation/04_NA12878_eval.png)
 
 #### 2.3.3 High quality call set
 
