@@ -463,11 +463,47 @@ GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. The
 
 
 
-### 2.3 Variant Annotation
+### 2.3 Variant Filtering
 
 
 
-#### 2.3.1 Function annotation
+#### 2.3.1 Assessment of variant filtering
+
+The VQSLOD score is known to have a bias towards common and well behaved variants, thus the 99.5% sensitivity threshold will lose many singleton SNPs for population variant data sets . We performed a series of exploration for the relationship between Variant Quality Score Log Odds (VQSLOD) and other metrics (i.e. titv ratio, singleton transmission ratio and Mendel inconsistancy)  to determine the best VQSLOD threshold for variant filtering as described in ExAC project.
+
+We reduced the stringency moving the VQSLOD threshold from -2.0622 (black dash line) to -6.63 (red dash line) with minimal impact on transition to transversion (TiTv) ratio from 1.92 to 1.84.
+
+The adjustment from standard VQSR filtering was assessed using singleton transmission and Mendel inconsistency. We use 21 trios to assess the transmission of singletons from parents. Reducing the stringency resulted in an improved average transmission rates from 50.7% to 49.9% while the cumulative Mendel inconsistency was with a minor increase from 3.60% to 4.09%.
+
+One additional round of site filtering was performed to filter sites with inbreeding coefiicient (InbreddingCoeff) < -0.2 to remove sites with excess heterozygous individuals and sites with AC (allele count) = 0, which occurs when remaining genotype calls in the release subset does not meet minimum quality threshold of DP >= 10 and GQ >= 20. In contrast, the Indel PASS cut off was not adjusted.
+
+![01_metrics_vs_vqsrank](D:\jarning\ongoing_project\rvp2018\figures\data_generation\01_metrics_vs_vqsrank.png)
+
+#### 2.3.2 Data quality evaluation
+
+The NA12878 exome call set by our pipeline generated from NIST NA12878 WES data on illumina HiSeq platform was evaluated against the NIST v2.18 consensus call set. The  NA12878 exome have 50% ExAC exome v1 intervals with depth >= 20, which is lower than most of our data (black points). In total, there were 255 variants (209 SNPs) that were absent in NIST v2.18. The false discovery rate (FDR) for NA12878 was imporoved from 2.34% to 1.12% after adjusted VQSR and genotype filter. Meanwhile, the sensitivity decreased from 81.35% to 64.87%, which cased by the low depth of raw reads.
+
+![04_NA12878_eval](figures\data_generation\04_NA12878_eval.png)
+
+#### 2.3.3 High quality call set
+
+Variant sites met the following criteria were identified as high-quality: 
+
+(1) they were marked a PASS filter status by adjusted VQSR (see above), 
+
+(2) at least 100 supported chromsomes (which means at least 50 individuals in autosomes) in the dataset had at least depth (DP) >= 10 and genotype quality (GQ) >= 20, 
+
+(3) there was at leasat one individual harboring the alternate allele with DP >= 10 and GQ >= 20. 
+
+The application of this criteria, includes all variaint in chromosome X and Y.
+
+
+
+### 2.4 Variant Annotation
+
+
+
+#### 2.4.1 Function annotation
 
 Variant annotation was performed using `Variant Effect Predictor` (VEP) version 92 on GRCh37. LoF (loss-of-function) annotation was performed using [`LOFTEE`](https://github.com/konradjk/loftee), a pugin to VEP developed by [MacArthur Lab](http://macarthurlab.org/) to identify LoF variation. VEP is used to determine the following annotations:
 
@@ -518,30 +554,21 @@ To speed up the annotation step, we divided the variant call set into 10Mbp bund
 
 
 
-#### 2.3.2 Allele frequency calculation
+#### 2.4.2 Allele frequency calculation
 
-A custom python script `02_recal_maf.py` was used to recalculate the allele frequency between males and females separately in the INFO field of VCF call set. 
+A custom python script was used to calculate the allele frequency (AF) between males and females separately in the INFO field of VCF call set.  We also calculated the homozygotes counts (HC) in all samples together with males and females. For variants in not PAR (Pseudoautosomal region) on sex chromosome, we fixed the AF where count the allele number(AN) in males as 1 for each genotype.
 
-| New tag in INFO field | Explanation                 |
-| --------------------- | --------------------------- |
-| AC_M                  | male alt allele counts      |
-| AC_F                  | female alt allele counts    |
-| AN_M                  | male allele number          |
-| AN_F                  | female allele number        |
-| AC_M                  | male alt allele frequency   |
-| AC_F                  | female alt allele frequency |
-
-
-
-### 2.4 Variant Filtering
-
-
-
-#### 2.4.1 Assessment of variant filtering
-
-The VQSLOD score is known to have a bias towards common and well behaved variants, thus the 99.5% sensitivity threshold will lose many singleton SNPs for population variant data sets . We performed a series of exploration for the relationship between Variant Quality Score Log Odds (VQSLOD) and other metrics (i.e. titv ratio, singleton transmission ratio and Mendel inconsistancy)  to determine the best VQSLOD threshold for variant filtering as described in ExAC project.
-
-#### 2.4.2 Data quality evaluation
+| New tag in INFO field | Explanation                  |
+| --------------------- | ---------------------------- |
+| AC_M                  | male alt allele counts       |
+| AC_F                  | female alt allele counts     |
+| AN_M                  | male allele number           |
+| AN_F                  | female allele number         |
+| AC_M                  | male alt allele frequency    |
+| AC_F                  | female alt allele frequency  |
+| HC                    | homozygote counts            |
+| HC_M                  | homozygote counts in males   |
+| HC_F                  | homozygote counts in females |
 
 
 
@@ -551,11 +578,11 @@ The VQSLOD score is known to have a bias towards common and well behaved variant
 
 ## 4 Data Availability
 
-| Call set                                                     | Samples | Filters                                  | Alt alleles | Annotations | Analysis                        |
-| ------------------------------------------------------------ | ------- | ---------------------------------------- | :---------- | ----------- | ------------------------------- |
-| RVP fertile cohort r0.1                                      | 1,109   | None                                     | 1,029,223   | VEP+CADD    | AF between males and females    |
-| RVP fertile cohort r0.1 -Variant site filtering              | 1,109   | Adjusted VQSR PASS                       |             | VEP+CADD    | NA12878 sensitivity/specificity |
-| RVP fertile cohort r0.1 -Variant site filtering and Genotype filtering | 1,109   | Adjusted VQSR PASS High quality variants |             | VEP+CADD    | All analysis in paper           |
+| Call set                                                     | Samples | Filters                                                      | Alt alleles | Annotations                               | Analysis                        |
+| ------------------------------------------------------------ | ------- | ------------------------------------------------------------ | :---------- | ----------------------------------------- | ------------------------------- |
+| RVP fertile cohort r0.1                                      | 1,109   | None                                                         | 1,027,259   | AF and HC                                 | None                            |
+| RVP fertile cohort r0.1 -Variant site filtering              | 1,109   | Adjusted VQSR PASS with imbreeding coff > -0.2               | 916,171     | AF and HC                                 | NA12878 sensitivity/specificity |
+| RVP fertile cohort r0.1 -Variant site filtering and Genotype filtering | 1,109   | Adjusted VQSR PASS with imbreeding coff > -0.2 + High quality variants | 836,315     | AF, HC and VEP+CADD functional annotation | All analysis in paper           |
 
 ## 5 Acknowledgements
 
