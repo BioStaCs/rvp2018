@@ -483,7 +483,7 @@ One additional round of site filtering was performed to filter sites with inbree
 
 The NA12878 exome call set by our pipeline generated from NIST NA12878 WES data on illumina HiSeq platform was evaluated against the NIST v2.18 consensus call set. The  NA12878 exome have 50% ExAC exome v1 intervals with depth >= 20, which is lower than most of our data (black points). In total, there were 255 variants (209 SNPs) that were absent in NIST v2.18. The false discovery rate (FDR) for NA12878 was imporoved from 2.34% to 1.12% after adjusted VQSR and genotype filter. Meanwhile, the sensitivity decreased from 81.35% to 64.87%, which cased by the low depth of raw reads.
 
-![04_NA12878_eval](figures/data_generation/04_NA12878_eval.png)
+![04_NA12878_eval](figures/data_generation/02_NA12878_eval.png)
 
 #### 2.3.3 High quality call set
 
@@ -494,6 +494,8 @@ Variant sites met the following criteria were identified as high-quality:
 (2) at least 100 supported chromsomes (which means at least 50 individuals in autosomes) in the dataset had at least depth (DP) >= 10 and genotype quality (GQ) >= 20, 
 
 (3) there was at leasat one individual harboring the alternate allele with DP >= 10 and GQ >= 20. 
+
+(4) for those variants not in PAR region on X or Y chromosome, we removed the heterozygous genotype in males.
 
 The application of this criteria, includes all variaint in chromosome X and Y.
 
