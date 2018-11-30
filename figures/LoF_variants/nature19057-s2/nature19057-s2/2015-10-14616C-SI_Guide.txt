@@ -1,0 +1,23 @@
+Supplementary Information Table 6.xlsx
+Format: Excel File
+Description: Supplementary Information Table 6. Per sample SNP and Indel false discovery rate by allele frequency and functional annotation.
+
+Supplementary Information Table 9.xlsx
+Format: Excel File
+Description: Supplementary Information Table 9. The breakdown of observed (ExAC) and possible (synthetic) variants by functional class and mutational class. 
+
+Supplementary Information Table 13.xlsx
+Format: Excel File
+Description: Supplementary Information Table 13. Z scores, pLI, pRec and pNull for all genes.
+
+Supplementary Information Table 16.xlsx
+Format: Excel File
+Description: Supplementary Information Table 16. 58 pathways that show significant deviations in pLI 
+
+Supplementary Information Table 19.xlsx
+Format: Excel File
+Description: Supplementary Information Table 19. HGMD variants with >1% global allele frequency variant curation. 
+
+Supplementary Information Table 20.xlsx
+Format: Excel File
+Description: Supplementary Information Table 20.  HGMD variants with >1% population (AMR and SAS) allele frequency variant curation. 
